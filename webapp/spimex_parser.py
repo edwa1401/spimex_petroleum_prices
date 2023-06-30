@@ -1,16 +1,10 @@
+from typing import Any, BinaryIO
+import logging
 import requests
-from typing import BinaryIO, Any
 import xlrd
-from dataclasses import dataclass
 
 
-@dataclass
-class Spimex_data:
-    code_instr: str
-    name_instr: str
-    basis: str
-    volume_tn: int
-    volume_rub: int
+logger = logging.getLogger(__name__)
 
 
 def download_file_from_spimex() -> BinaryIO:
@@ -22,7 +16,10 @@ def download_file_from_spimex() -> BinaryIO:
 
 
 def read_spimex_file() -> Any:
+    logging.basicConfig(level=logging.INFO)
+
     workbook = xlrd.open_workbook('.data/spimex.xls')
     sheet = workbook.sheet_by_index(0)
     for row in range(sheet.nrows):
-        print(sheet.row(row))
+        for column in range(sheet.ncols):
+            logger.info(sheet.cell(row, column))
