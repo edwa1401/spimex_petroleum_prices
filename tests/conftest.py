@@ -1,6 +1,3 @@
-# import random
-# import string
-# from random import randint
 
 def make_code():
     def inner(
@@ -32,5 +29,5 @@ def make_code():
 #             price_best_call: str | None = None,
 #             num_of_lot: str | None = None
 #             ):
-#         code = code or make_code,
+#         code = make_code
 
