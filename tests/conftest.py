@@ -72,10 +72,10 @@ def make_contract_str(make_code, make_petroleum_price):
 
 
 @pytest.fixture
-def create_contracts_str(make_contract):
+def create_contracts_str(make_contract_str):
     def inner(num_of_contracts: int | None = None):
         num_of_contracts = num_of_contracts or 10
-        return [make_contract for _ in range(num_of_contracts)]
+        return [make_contract_str for _ in range(num_of_contracts)]
     return inner
 
 
@@ -137,8 +137,8 @@ def create_all_values(create_contracts_str, make_date_str):
         section_name_str = section_name_str or 'Секция Биржи: «Нефтепродукты» АО «СПбМТСБ»'
         metric_str = metric_str or 'Единица измерения: Метрическая тонна'
         last_column_header = 'Лучший\nспрос'
-        contracts = create_contracts_str
         total_line_contracts = 'Итого:'
+        contracts = create_contracts_str
         all_values = [
             first_row,
             prefix_day,
@@ -146,10 +146,10 @@ def create_all_values(create_contracts_str, make_date_str):
             section_name_str,
             metric_str,
             last_column_header,
-            ''.join(contracts),
+            ''.join([contract for contract in contracts]),
             total_line_contracts,
             last_column_header,
-            ''.join(contracts),
+            ''.join([contract for contract in contracts]),
             total_line_contracts
         ]
         return all_values

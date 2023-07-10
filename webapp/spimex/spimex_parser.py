@@ -57,12 +57,15 @@ def get_indexes_for_search_value(all_values: list[str], search_value: str) -> li
 
 
 def extract_value_from_string(raw_string: str, prefix: str) -> str:
-    return raw_string[len(prefix):len(raw_string)]
+    if prefix in raw_string:
+        return raw_string[len(prefix):len(raw_string)]
+    else:
+        return raw_string
 
 
 def make_strings_from_all_values(all_values: list[str], search_value: str, prefix: str) -> list[str]:
     indexes = get_indexes_for_search_value(all_values, search_value)
-    return [extract_value_from_string(all_values[index], prefix) for index in indexes]
+    return [extract_value_from_string(all_values[index], prefix) for index in indexes if extract_value_from_string(all_values[index], prefix)]
 
 
 def get_day(all_values: list[str]) -> date:
