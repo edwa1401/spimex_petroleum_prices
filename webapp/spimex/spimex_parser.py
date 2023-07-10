@@ -5,6 +5,7 @@ from typing import Any
 import requests
 import xlrd
 from xlrd import sheet
+from fastapi import HTTPException
 
 import webapp.config as config
 from webapp.spimex.schemas import Contract, Section, TradeDay
@@ -12,14 +13,26 @@ from webapp.spimex.schemas import Contract, Section, TradeDay
 logger = logging.getLogger(__name__)
 
 
-def get_url_to_spimex_data() -> str:
-    return 'https://spimex.com/upload/reports/oil_xls/oil_xls_20230628162000.xls'
+def get_url_to_spimex_data(date: str) -> str:
+    url = 'https://spimex.com/upload/reports/oil_xls/oil_xls_' + date + '162000.xls'
+    return url
+
+# TODO написать функцию, которая принимает дату в обычном формате, проверяет что это
+# TODO не суббота и не воскресенье и возращает нужный текст"
 
 
 def download_file_from_spimex(url: str) -> bytes:
-    response = requests.get(url)
-    response.raise_for_status()
+    try:
+        response = requests.get(url)
+        response.raise_for_status()
+    except HTTPException:
+        raise HTTPException(
+            status_code=500,
+            detail='Ошибка сайта СПБМТСБ'
+        )
     return response.content
+
+# TODO добавить нормальную обработку ошибок
 
 
 def read_spimex_file(content: bytes) -> sheet.Sheet:

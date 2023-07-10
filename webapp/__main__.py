@@ -16,12 +16,12 @@ app = FastAPI()
 
 
 @app.get('/spimex prices')
-def get_spimex_trade_day() -> dict:
+def get_spimex_trade_day(date: str) -> dict:
     logging.basicConfig(level=logging.INFO)
 
     logger.info('app started')
 
-    url = get_url_to_spimex_data()
+    url = get_url_to_spimex_data(date=date)
     content = download_file_from_spimex(url)
     sheet = read_spimex_file(content)
     raw_data = get_all_cell_values_from_sheet(sheet)
@@ -33,9 +33,10 @@ def get_spimex_trade_day() -> dict:
     return {
         'Результаты торгов на СБМТСБ за ': trade_day.day,
         'в секции ': trade_day.sections[1].name,
-        'единица измерений': trade_day.sections[1].metric
+        'единица измерений': trade_day.sections[1].metric,
+        'число контрактов в секции': len(trade_day.sections[1].contracts)
     }
 
 
 if __name__ == '__main__':
-    uvicorn.run(app, host="0.0.0.0", port=8000)
+    uvicorn.run(app, host="0.0.0.0", port=80)
