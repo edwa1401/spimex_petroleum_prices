@@ -78,6 +78,10 @@ def convert_empty_strings(string: str) -> Any:
     return None if string == '-' else string
 
 
+def convert_empty_values_to_zero(string: str) -> Any:
+    return '0' if string == '-' else string
+
+
 def get_sections_indexes(all_values: list[str]) -> list[list[int]]:
     start_section_indexes = get_indexes_for_search_value(all_values, search_value='Лучший\nспрос')
     end_section_indexes = get_indexes_for_search_value(all_values, search_value='Итого:')
@@ -109,8 +113,8 @@ def convert_contract(contract: list[str]) -> Contract:
         code=convert_empty_strings(contract[-14]),
         name=convert_empty_strings(contract[-13]),
         base=convert_empty_strings(contract[-12]),
-        volume=convert_empty_strings(contract[-11]),
-        amount=convert_empty_strings(contract[-10]),
+        volume=convert_empty_values_to_zero(contract[-11]),
+        amount=convert_empty_values_to_zero(contract[-10]),
         price_change_amount=convert_empty_strings(contract[-9]),
         price_change_ratio=convert_empty_strings(contract[-8]),
         price_min=convert_empty_strings(contract[-7]),

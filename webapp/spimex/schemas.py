@@ -7,8 +7,8 @@ class Contract:
     code: str
     name: str
     base: str
-    volume: str | None
-    amount: str | None
+    volume: str
+    amount: str
     price_change_amount: str | None
     price_change_ratio: str | None
     price_min: str | None

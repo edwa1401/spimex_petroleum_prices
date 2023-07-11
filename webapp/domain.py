@@ -2,14 +2,20 @@ import enum
 from dataclasses import dataclass
 from datetime import date
 
-# TODO добавить группы Бензины и ДТ с основными октанами/ сортами
-# аггрегацию продуктов по бензинам (октаны) и дт (сорта), присваивание плотности и
+# TODO добавить
+# аггрегацию продуктов по бензинам (октаны) и дт (сорта) (сделать mapping),
+# присваивание плотности и
 # суммирование amount и volume по признаку октан / базис
 
 
 class Petroleums(enum.Enum):
-    GASOLINE = 'Бензины'
-    GASOIL = 'ДТ'
+    AI100 = 'Бензин Аи-100'
+    AI98 = 'Бензин Аи-98'
+    AI95 = 'Бензин Аи-95'
+    AI92 = 'Бензин Аи-92'
+    DTL = 'Дизельное топливо Летнее'
+    DTD = 'Дизельное топливо Демисезонное'
+    DTZ = 'Дизельное топливо Зимнее'
     OTHER_PRODUCT = 'Прочее'
 
 
@@ -21,7 +27,7 @@ class Shipment(enum.Enum):
     OTHER_SHIPMENT = 'Прочие'
 
 
-class Metrics(enum.Enum):
+class Metric(enum.Enum):
     KG = 'Килограмм'
     TN = 'Метрическая тонна'
 
@@ -34,21 +40,30 @@ class Basis:
 
 
 @dataclass(frozen=True, kw_only=True, slots=True)
+class ProductKey:
+    name: str
+    base: str
+
+
+@dataclass(frozen=True, kw_only=True, slots=True)
 class Product:
-    product_name: str
-    basis: Basis
-    lot_size: str
-    shipment: str
-    petroleum_type: Petroleums
-    volume: int
-    amount: int
-    metrix: Metrics
+    product_key: ProductKey
+    volume: float
+    amount: float
+    metric: str
     day: date
+
+
+@dataclass(frozen=True, kw_only=True, slots=True)
+class Petruleum(Product):
+    sort: Petroleums
     density: float
+    day: date
 
-    def calculate_price(self, amount: int, volume: int) -> float | None:
-        price = amount / volume if amount and volume else None
-        return price
+    @property
+    def price(self) -> float | None:
+        return self.amount / self.volume if self.amount and self.volume else None
 
-    def calculate_retail_price(self, density: float, price: float) -> float | None:
-        return price * density / 1000 if price else None
+    @property
+    def retail_price(self) -> float | None:
+        return self.price * self.density / 1000 if self.price else None

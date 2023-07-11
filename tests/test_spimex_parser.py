@@ -35,10 +35,9 @@ def test__download_file_from_spimex__success(make_request_response):
         requests_get_mock.return_value = make_request_response(value)
         assert download_file_from_spimex('some_url') == b'some value'
 
+# TODO написать тесты на обработку ошибок
 
-# TODO написать тест на возвращение объекта sheet.Sheet из байтов
-def test__read_spimex_file__():
-    pass
+# TODO написать тесты на возвращение объекта sheet.Sheet из байтов и конвертиртацию Sheet.sheet. в строку
 
 
 @pytest.mark.parametrize(('raw_data, expected'),
@@ -76,3 +75,5 @@ def test__extract_value_from_string__succes(raw_string, prefix, expected):
 ])
 def test__make_strings_from_all_values__success(all_values, search_value, prefix, expected):
     assert make_strings_from_all_values(all_values, search_value, prefix) == expected
+
+
