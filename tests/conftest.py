@@ -2,13 +2,13 @@ import datetime
 import io
 import random
 from random import randint
-from datetime import date
 import pytest
 import requests
 from faker import Faker
 
 from webapp.spimex.schemas import Contract, TradeDay, Section
 from webapp.domain import ProductKey, Product
+
 
 @pytest.fixture
 def make_code():
@@ -139,7 +139,6 @@ def create_contracts_str(make_contract_str):
     return inner
 
 
-
 @pytest.fixture
 def make_section_str(create_contracts_str):
     def inner(
@@ -227,6 +226,7 @@ def make_request_response(convert_bytes_from_str):
         return response
     return inner
 
+
 @pytest.fixture
 def make_date_str():
     def inner(day: str | None = None):
@@ -253,7 +253,7 @@ def create_trade_day(create_contract, make_date):
               contracts: list[list[Contract], list[Contract]] | None = None,
               ):
         day = make_date(day) or make_date('07.07.2023')
-        
+
         section_names = section_names or ['«Нефтепродукты» АО «СПбМТСБ»', '«Нефтепродукты» АО «СПбМТСБ»']
         section_metrics = section_metrics or ['Килограмм', 'Метрическая тонна']
 
