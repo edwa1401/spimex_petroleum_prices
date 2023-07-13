@@ -94,7 +94,7 @@ def test__get_contracts_amount_sum__fail_diff_in_code_base(create_contract, crea
 
 
 def test__get_products_from_trade_day__success(make_date_str, create_trade_day, create_contract, create_product, create_product_key):
-    
+
     day = make_date_str('07.07.2023')
 
     section_names = ['«Нефтепродукты» АО «СПбМТСБ»', '«Нефтепродукты» АО «СПбМТСБ»']

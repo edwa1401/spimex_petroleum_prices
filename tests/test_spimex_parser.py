@@ -1,4 +1,4 @@
-from webapp.spimex.spimex_parser import (convert_empty_strings, 
+from webapp.spimex.spimex_parser import (convert_empty_strings,
                                          get_url_to_spimex_data,
                                          download_file_from_spimex,
                                          delete_all_emty_values_from_raw_data,
@@ -140,5 +140,3 @@ def test__convert_contract__fail_return_assertion_error_for_different_result_in_
 
     with pytest.raises(AssertionError):
         assert convert_contract(contract=contract) == expected
-
-
