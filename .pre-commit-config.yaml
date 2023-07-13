@@ -1,0 +1,18 @@
+default_language_version:
+    python: python3.10
+repos:
+  - repo: https://github.com/PyCQA/flake8
+    rev: '6.0.0'
+    hooks:
+    - id: flake8
+      name: flake8
+      exclude: ^tests/
+  - repo: https://github.com/pre-commit/mirrors-mypy
+    rev: v1.4.1
+    hooks:
+    - id: mypy
+      name: mypy
+      additional_dependencies: [types-requests==2.31.0.1]
+      args: [--ignore-missing-imports]
+      exclude: ^tests/
+      
