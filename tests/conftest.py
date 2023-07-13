@@ -247,12 +247,12 @@ def make_date():
 
 @pytest.fixture
 def create_trade_day(create_contract, make_date):
-    def inner(day: str | None = None,
+    def inner(inp_day: str | None = None,
               section_names: list[str] | None = None,
               section_metrics: list[str] | None = None,
               contracts: list[list[Contract], list[Contract]] | None = None,
               ):
-        day = make_date(day) or make_date('07.07.2023')
+        day = make_date(inp_day) or make_date('07.07.2023')
 
         section_names = section_names or ['«Нефтепродукты» АО «СПбМТСБ»', '«Нефтепродукты» АО «СПбМТСБ»']
         section_metrics = section_metrics or ['Килограмм', 'Метрическая тонна']
@@ -292,13 +292,13 @@ def create_product(create_product_key, make_date):
             volume: float | None = None,
             amount: float | None = None,
             metric: str | None = None,
-            day: str | None = None
+            inp_day: str | None = None
     ):
         product_key = product_key or create_product_key(name='A592', base='ACH', base_name='НПЗ')
         volume = volume or 100.05
         amount = amount or 5000000.95
         metric = metric or 'Метрическая тонна'
-        day = make_date(day) or make_date('07.07.2023')
+        day = make_date(inp_day) or make_date('07.07.2023')
 
         return Product(
             product_key=product_key,

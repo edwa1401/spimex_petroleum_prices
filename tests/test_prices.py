@@ -110,13 +110,13 @@ def test__get_products_from_trade_day__success(make_date_str, create_trade_day, 
             create_contract(code='DTZ5ACH005A', base='Ачинский НПЗ', volume='200', amount='3770000.5')
         ]
     ]
-    trade_day = create_trade_day(day=day, section_names=section_names, section_metrics=section_metrics, contracts=contracts)
+    trade_day = create_trade_day(inp_day=day, section_names=section_names, section_metrics=section_metrics, contracts=contracts)
 
     product_key_1 = create_product_key(name='A592', base='AAS', base_name='НБ Карасунская')
     product_key_2 = create_product_key(name='DTZ5', base='ACH', base_name='Ачинский НПЗ')
 
-    product_1 = create_product(product_key=product_key_1, volume=30000.00, amount=10000001.00, metric='Килограмм', day=day)
-    product_2 = create_product(product_key=product_key_2, volume=300.00, amount=10000000.5, metric='Метрическая тонна', day=day)
+    product_1 = create_product(product_key=product_key_1, volume=30000.00, amount=10000001.00, metric='Килограмм', inp_day=day)
+    product_2 = create_product(product_key=product_key_2, volume=300.00, amount=10000000.5, metric='Метрическая тонна', inp_day=day)
 
     products = [product_1, product_2]
 
