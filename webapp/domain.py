@@ -43,6 +43,7 @@ class Basis:
 class ProductKey:
     name: str
     base: str
+    base_name: str
 
 
 @dataclass(frozen=True, kw_only=True, slots=True)
@@ -58,7 +59,6 @@ class Product:
 class Petruleum(Product):
     sort: Petroleums
     density: float
-    day: date
 
     @property
     def price(self) -> float | None:

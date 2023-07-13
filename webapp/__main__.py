@@ -36,7 +36,7 @@ def get_spimex_trade_day(date: str) -> dict:
         'Количество видов нефтепродуктов в разрезе базисов': len(trade_day_products),
 
         'Результат продаж по продукту': trade_day_products[100].product_key.name,
-        'базис поставки': trade_day_products[300].product_key.base,
+        'базис поставки': trade_day_products[300].product_key.base_name,
         'проданный объем': trade_day_products[300].volume,
         'ед. измерений': trade_day_products[300].metric,
         'на сумму, руб': trade_day_products[300].amount

@@ -2,11 +2,13 @@ import datetime
 import io
 import random
 from random import randint
-
+from datetime import date
 import pytest
 import requests
 from faker import Faker
 
+from webapp.spimex.schemas import Contract, TradeDay, Section
+from webapp.domain import ProductKey, Product
 
 @pytest.fixture
 def make_code():
@@ -72,20 +74,70 @@ def make_contract_str(make_code, make_petroleum_price):
 
 
 @pytest.fixture
+def create_contract():
+    def inner(
+            code: str | None = None,
+            name: str | None = None,
+            base: str | None = None,
+            volume: str | None = None,
+            amount: str | None = None,
+            price_change_amount: str | None = None,
+            price_change_ratio: str | None = None,
+            price_min: str | None = None,
+            price_avg: str | None = None,
+            price_max: str | None = None,
+            price_market: str | None = None,
+            price_best_bid: str | None = None,
+            price_best_call: str | None = None,
+            num_of_lots: str | None = None
+    ):
+        return Contract(
+            code=code or 'A592UFM060F',
+            name=name or 'Продукт (марка бензина/сорт ДТ), ст. отправления',
+            base=base or 'жд станция / пункт налива / нефтебаза',
+            volume=volume or str(120),
+            amount=amount or str(240000),
+            price_change_amount=price_change_amount or str(500),
+            price_change_ratio=price_change_ratio or str(0.50),
+            price_min=price_min or str(50000),
+            price_avg=price_avg or str(60000),
+            price_max=price_max or str(70000),
+            price_market=price_market or str(60000),
+            price_best_bid=price_best_bid or str(61000),
+            price_best_call=price_best_call or str(59000),
+            num_of_lots=num_of_lots or str(10)
+        )
+    return inner
+
+
+@pytest.fixture
+def create_product_key(create_contract):
+    def inner(name: str | None = None,
+              base: str | None = None,
+              base_name: str | None = None):
+
+        name = name or 'A595'
+        base = base or 'RZN'
+        base_name = base_name or 'жд станция'
+
+        code = name + base + '060F'
+        contract = create_contract(code=code, base=base_name)
+
+        return ProductKey(
+            name=contract.code[0:4],
+            base=contract.code[4:7],
+            base_name=contract.base
+        )
+    return inner
+
+
+@pytest.fixture
 def create_contracts_str(make_contract_str):
     def inner(num_of_contracts: int | None = None):
         num_of_contracts = num_of_contracts or 10
         return [make_contract_str for _ in range(num_of_contracts)]
     return inner
 
-
-@pytest.fixture
-def make_date_str():
-    def inner(day: str | None = None):
-        fake = Faker()
-        day = day or datetime.datetime.strftime(fake.date_object(), '%d.%m.%Y')
-        return day
-    return inner
 
 
 @pytest.fixture
@@ -173,4 +225,86 @@ def make_request_response(convert_bytes_from_str):
         response.status_code = 200
         response.raw = io.BytesIO(convert_bytes_from_str(value=value))
         return response
+    return inner
+
+@pytest.fixture
+def make_date_str():
+    def inner(day: str | None = None):
+        fake = Faker()
+        day = day or datetime.datetime.strftime(fake.date_object(), '%d.%m.%Y')
+        return day
+    return inner
+
+
+@pytest.fixture
+def make_date():
+    def inner(day: str | None = None):
+        fake = Faker()
+        day = day or datetime.datetime.strftime(fake.date_object(), '%d.%m.%Y')
+        return datetime.datetime.strptime(day, '%d.%m.%Y')
+    return inner
+
+
+@pytest.fixture
+def create_trade_day(create_contract, make_date):
+    def inner(day: str | None = None,
+              section_names: list[str] | None = None,
+              section_metrics: list[str] | None = None,
+              contracts: list[list[Contract], list[Contract]] | None = None,
+              ):
+        day = make_date(day) or make_date('07.07.2023')
+        
+        section_names = section_names or ['«Нефтепродукты» АО «СПбМТСБ»', '«Нефтепродукты» АО «СПбМТСБ»']
+        section_metrics = section_metrics or ['Килограмм', 'Метрическая тонна']
+
+        contracts = contracts or [
+            [
+                create_contract(code='A592AASK01O', base='НБ Карасунская', volume='10000', amount='3000000.5'),
+                create_contract(code='A592AAS060A', base='НБ Карасунская', volume='20000', amount='7000000.5')
+            ],
+            [
+                create_contract(code='A592ACH005A', base='Ачинский НПЗ', volume='100', amount='6330000'),
+                create_contract(code='A592ACH005A', base='Ачинский НПЗ', volume='200', amount='3770000.5')
+            ]
+        ]
+        return TradeDay(
+            day=day,
+            sections=[
+                Section(
+                    name=section_names[0],
+                    metric=section_metrics[0],
+                    contracts=contracts[0]
+                ),
+                Section(
+                    name=section_names[1],
+                    metric=section_metrics[1],
+                    contracts=contracts[1]
+                ),
+            ]
+        )
+    return inner
+
+
+@pytest.fixture
+def create_product(create_product_key, make_date):
+    def inner(
+            product_key: ProductKey | None = None,
+            volume: float | None = None,
+            amount: float | None = None,
+            metric: str | None = None,
+            day: str | None = None
+    ):
+        product_key = product_key or create_product_key(name='A592', base='ACH', base_name='НПЗ')
+        volume = volume or 100.05
+        amount = amount or 5000000.95
+        metric = metric or 'Метрическая тонна'
+        day = make_date(day) or make_date('07.07.2023')
+
+        return Product(
+            product_key=product_key,
+            volume=volume,
+            amount=amount,
+            metric=metric,
+            day=day
+        )
     return inner

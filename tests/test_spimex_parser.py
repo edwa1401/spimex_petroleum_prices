@@ -4,7 +4,8 @@ from webapp.spimex.spimex_parser import (convert_empty_strings,
                                          delete_all_emty_values_from_raw_data,
                                          get_indexes_for_search_value,
                                          extract_value_from_string,
-                                         make_strings_from_all_values
+                                         make_strings_from_all_values,
+                                         convert_contract
                                          )
 import pytest
 from unittest.mock import patch
@@ -75,5 +76,69 @@ def test__extract_value_from_string__succes(raw_string, prefix, expected):
 ])
 def test__make_strings_from_all_values__success(all_values, search_value, prefix, expected):
     assert make_strings_from_all_values(all_values, search_value, prefix) == expected
+
+
+def test__convert_contract__success(make_contract_str, make_code, make_petroleum_price, create_contract):
+
+    code = make_code(product='A100', basis='UFM', lot_size='060', shipment='F')
+    price = make_petroleum_price
+    name = 'Продукт (марка бензина/сорт ДТ), ст. отправления'
+    base = 'жд станция / пункт налива / нефтебаза'
+    volume = '120'
+    amount = '2400000'
+    price_change_amount = '1000'
+    price_change_ration = '0.50'
+    num_of_lot = '1'
+
+    contract = make_contract_str(
+        code=code,
+        name=name,
+        base=base,
+        volume=volume,
+        amount=amount,
+        price_change_amount=price_change_amount,
+        price_change_ration=price_change_ration,
+        price_min=price,
+        price_avg=price,
+        price_max=price,
+        price_market=price,
+        price_best_bid=price,
+        price_best_call=price,
+        num_of_lot=num_of_lot
+    )
+
+    expected = create_contract(
+        code=code,
+        name=name,
+        base=base,
+        volume=volume,
+        amount=amount,
+        price_change_amount=price_change_amount,
+        price_change_ratio=price_change_ration,
+        price_min=price,
+        price_avg=price,
+        price_max=price,
+        price_market=price,
+        price_best_bid=price,
+        price_best_call=price,
+        num_of_lots=num_of_lot
+    )
+
+    assert convert_contract(contract=contract) == expected
+
+
+def test__convert_contract__fail_return_assertion_error_for_different_result_in_code(
+        make_contract_str,
+        make_code,
+        create_contract):
+
+    code = make_code(product='A100', basis='UFM', lot_size='060', shipment='F')
+
+    contract = make_contract_str(code=code)
+
+    expected = create_contract(code='A595UFM060F')
+
+    with pytest.raises(AssertionError):
+        assert convert_contract(contract=contract) == expected
 
 

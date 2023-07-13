@@ -8,6 +8,7 @@ def get_product_key(contract: Contract) -> ProductKey:
     return ProductKey(
         name=contract.code[:4],
         base=contract.code[4:7],
+        base_name=contract.base
     )
 
 
@@ -34,12 +35,15 @@ def get_contracts_amount_sum(contracts: list[Contract]) -> dict[ProductKey, floa
 
 
 def get_products_from_trade_day(trade_day: TradeDay) -> list[Product]:
-    products = []
+    products: dict[ProductKey, Product] = {}
     for section in trade_day.sections:
         amounts = get_contracts_amount_sum(section.contracts)
         volumes = get_contracts_volumes_sum(section.contracts)
         for contract in section.contracts:
             product_key = get_product_key(contract)
+            if product_key in products:
+                continue
+
             product = Product(
                 product_key=product_key,
                 volume=volumes[product_key],
@@ -47,5 +51,5 @@ def get_products_from_trade_day(trade_day: TradeDay) -> list[Product]:
                 day=trade_day.day,
                 metric=section.metric
             )
-            products.append(product)
-    return products
+            products[product_key] = product
+    return list(products.values())
