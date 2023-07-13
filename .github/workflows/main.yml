@@ -23,7 +23,5 @@ jobs:
         run: flake8 .
       - name: Run mypy
         run: mypy .
-      - name: Install self
-        run: pip install -e .
       - name: Run tests
         run: pytest .
