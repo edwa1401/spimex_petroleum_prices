@@ -1,20 +1,12 @@
-ifneg (,$(wildcard .env))
-    $(info Found .env file.)
-    include .env
-    export
-endif
-
-export PYTHONPATH := $(shell pwd):$(PYTHONPATH)
 
 style: 
-    flake8 webapp
-
+	flake8 .
 
 types:
-    mypy webapp
+	mypy .
 
 tests:
-    pytest --lf -vv .
+	pytest --lf -vv .
 
 check:
-    make style types tests
+	make style types tests

@@ -2,13 +2,8 @@ import enum
 from dataclasses import dataclass
 from datetime import date
 
-# TODO добавить
-# аггрегацию продуктов по бензинам (октаны) и дт (сорта) (сделать mapping),
-# присваивание плотности и
-# суммирование amount и volume по признаку октан / базис
 
-
-class Petroleums(enum.Enum):
+class PetroleumSort(enum.Enum):
     AI100 = 'Бензин Аи-100'
     AI98 = 'Бензин Аи-98'
     AI95 = 'Бензин Аи-95'
@@ -16,7 +11,7 @@ class Petroleums(enum.Enum):
     DTL = 'Дизельное топливо Летнее'
     DTD = 'Дизельное топливо Демисезонное'
     DTZ = 'Дизельное топливо Зимнее'
-    OTHER_PRODUCT = 'Прочее'
+    OTHER_PRODUCTS = 'Прочие продукты'
 
 
 class Shipment(enum.Enum):
@@ -56,14 +51,14 @@ class Product:
 
 
 @dataclass(frozen=True, kw_only=True, slots=True)
-class Petruleum(Product):
-    sort: Petroleums
+class Petroleum(Product):
+    sort: PetroleumSort
     density: float
 
     @property
     def price(self) -> float | None:
-        return self.amount / self.volume if self.amount and self.volume else None
+        return round(self.amount / self.volume, 2) if self.amount and self.volume else None
 
     @property
     def retail_price(self) -> float | None:
-        return self.price * self.density / 1000 if self.price else None
+        return round(self.price * self.density / 1000, 2) if self.price else None
