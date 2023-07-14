@@ -3,7 +3,8 @@ import logging
 import uvicorn
 from fastapi import FastAPI
 
-from webapp.prices import get_products_from_trade_day
+from webapp.prices import (get_products_from_trade_day, set_density_map,
+                           get_petroleum_map, transform_products_to_petroleums, get_products_filtered_by_basis)
 from webapp.spimex.spimex_parser import (create_trade_day,
                                          delete_all_emty_values_from_raw_data,
                                          download_file_from_spimex,
@@ -29,17 +30,28 @@ def get_spimex_trade_day(date: str) -> dict:
     all_values = delete_all_emty_values_from_raw_data(raw_data)
     trade_day = create_trade_day(all_values)
     trade_day_products = get_products_from_trade_day(trade_day)
-    logger.info(trade_day_products)
+    petrol_map = get_petroleum_map()
+    density_map = set_density_map()
+    petroleums = transform_products_to_petroleums(trade_day_products, petrol_map, density_map)
+    basis_name = 'ст. Стенькино II'
+    ryazan = get_products_filtered_by_basis(petroleums, basis_name=basis_name)
+    logger.info(ryazan)
 
     return {
-        'Результаты торгов на СБМТСБ за ': trade_day.day,
-        'Количество видов нефтепродуктов в разрезе базисов': len(trade_day_products),
+        'Результаты торгов на СБМТСБ за ': ryazan[3].day,
+        'Результат продаж на базисе ': basis_name,
 
-        'Результат продаж по продукту': trade_day_products[100].product_key.name,
-        'базис поставки': trade_day_products[300].product_key.base_name,
-        'проданный объем': trade_day_products[300].volume,
-        'ед. измерений': trade_day_products[300].metric,
-        'на сумму, руб': trade_day_products[300].amount
+        'Автобензин ': ryazan[2].sort,
+        'Проданный объем ': ryazan[2].volume,
+        'ед. измерений ': ryazan[2].metric,
+        'по цене, руб/т ': ryazan[2].price,
+        'что эквивалентно розничной цене, руб/л ': ryazan[2].retail_price,
+
+        'ДТ ': ryazan[3].sort,
+        'на сумму ': ryazan[3].amount,
+        'ед. изм ': ryazan[3].metric,
+        'опт. цена, руб/т ': ryazan[3].price,
+        'розничная цена, руб/т': ryazan[3].retail_price
     }
 
 
