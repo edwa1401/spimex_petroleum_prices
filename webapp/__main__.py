@@ -18,7 +18,7 @@ app = FastAPI()
 
 
 @app.get('/spimex_prices')
-def get_spimex_trade_day(date: str) -> dict:
+def get_spimex_trade_day(date: str, basis_name: str) -> dict:
     logging.basicConfig(level=logging.INFO)
 
     logger.info('app started')
@@ -33,7 +33,6 @@ def get_spimex_trade_day(date: str) -> dict:
     petrol_map = get_petroleum_map()
     density_map = set_density_map()
     petroleums = transform_products_to_petroleums(trade_day_products, petrol_map, density_map)
-    basis_name = 'ст. Стенькино II'
     ryazan = get_products_filtered_by_basis(petroleums, basis_name=basis_name)
     logger.info(ryazan)
 
