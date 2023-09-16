@@ -6,7 +6,8 @@ repos:
     hooks:
     - id: flake8
       name: flake8
-      exclude: ^tests/
+      exclude: ^tests/, ^migrations/, migrations/env
+      exclude: migrations/
   - repo: https://github.com/pre-commit/mirrors-mypy
     rev: v1.4.1
     hooks:
@@ -14,5 +15,5 @@ repos:
       name: mypy
       additional_dependencies: [types-requests==2.31.0.1]
       args: [--ignore-missing-imports]
-      exclude: ^tests/
+      exclude: ^tests/, migrations/
       

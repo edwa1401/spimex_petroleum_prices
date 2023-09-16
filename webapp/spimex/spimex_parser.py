@@ -4,21 +4,83 @@ from typing import Any
 
 import requests
 import xlrd
-from xlrd import sheet
+from bs4 import BeautifulSoup
 from fastapi import HTTPException
+from xlrd import sheet
 
 import webapp.config as config
 from webapp.spimex.schemas import Contract, Section, TradeDay
+import re
 
 logger = logging.getLogger(__name__)
+
+
+def get_date(date: str) -> date:
+    return datetime.date(datetime.strptime(date, '%Y-%m-%d'))
+
+
+def convert_date(date: date) -> str:
+    if date.weekday() == 5 or date.weekday() == 6:
+        return 'No tradings in holidays'
+    if len(str(date.day)) == 1:
+        day = '0' + str(date.day)
+    else:
+        day = str(date.day)
+    if len(str(date.month)) == 1:
+        month = '0' + str(date.month)
+    else:
+        month = str(date.month)
+    return str(date.year) + month + day
 
 
 def get_url_to_spimex_data(date: str) -> str:
     url = 'https://spimex.com/upload/reports/oil_xls/oil_xls_' + date + '162000.xls'
     return url
 
-# TODO написать функцию, которая принимает дату в обычном формате, проверяет что это
-# TODO не суббота и не воскресенье и возращает нужный текст"
+
+def get_sessid(sess: requests.Session) -> str:
+    url_rzd = 'https://spimex.com/markets/oil_products/rzd/'
+    resp = sess.get(url_rzd)
+    soup = BeautifulSoup(resp.text, 'html.parser')
+    raw_scripts = soup.head.find_all('script')
+    for script in raw_scripts:
+        if 'bitrix_sessid' in script.text:
+            result = script.text
+    sess_id_re = re.compile("^.*'bitrix_sessid':'(\w*)'.*$")
+    match = sess_id_re.match(result)
+    if match:
+        sessid = match.groups()[0]
+
+    return sessid
+
+
+def get_rail_tariff_from_spimex(station_from: str, station_to: str, cargo: str) -> Any:
+
+    sess = requests.Session()
+
+    sessid = get_sessid(sess)
+
+    url = 'https://spimex.com/local/components/spimex/calculator.rzd/templates/.default/ajax.php'
+
+    payload = {
+        'action': 'getCalculation',
+        'sessid': sessid,
+        'type': '43',
+        'st1': station_from,
+        'st2': station_to,
+        'kgr': cargo,
+        'ves': '52',
+        'gp': '66',
+        'nv': '1',
+        'nvohr': '1',
+        'nprov': '0',
+        'osi': '4',
+        'sv': '2'
+    }
+    response = sess.post(url=url, data=payload)
+    response.raise_for_status()
+
+    return response.json()
 
 
 def download_file_from_spimex(url: str) -> bytes:
